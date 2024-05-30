@@ -9,7 +9,7 @@ pipeline {
         BUILD_SERVER='ec2-user@172.31.8.129'
         IMAGE_NAME='devopstrainer/java-mvn-privaterepos:$BUILD_NUMBER'
         //DEPLOY_SERVER='ec2-user@172.31.14.15'
-        ACM_IP='ec2-user@172.31.14.1'
+        ACM_IP='ec2-user@172.31.14.79'
        AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
         AWS_SECRET_ACCESS_KEY=credentials("AWS_SECRET_ACCESS_KEY")
         //created a new credential of type secret text to store docker pwd
