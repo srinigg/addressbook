@@ -9,10 +9,11 @@ pipeline {
         BUILD_SERVER='ec2-user@172.31.42.86'
         IMAGE_NAME='devopstrainer/java-mvn-privaterepos:$BUILD_NUMBER'
         //DEPLOY_SERVER='ec2-user@172.31.14.15'
-        ACM_IP=''
-        DOCKER_REG_PASSWORD=""
-        ACCESS_KEY=credentials('ACCESS_KEY')
-        SECRET_ACCESS_KEY=credentials('SECRET_ACCESS_KEY')
+        ACM_IP='ec2-user@172.31.14.1'
+       AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
+        AWS_SECRET_ACCESS_KEY=credentials("AWS_SECRET_ACCESS_KEY")
+        //created a new credential of type secret text to store docker pwd
+        DOCKER_REG_PASSWORD=credentials("DOCKER_REG_PASSWORD")
     }
     stages {
         stage('Compile') {
@@ -69,8 +70,8 @@ pipeline {
                    steps{
                        script{
                            dir('terraform'){
-                            sh 'aws configure set aws_access_key_id ${ACCESS_KEY}'
-                            sh 'aws configure set aws_secret_access_key ${SECRET_ACCESS_KEY}'
+                            sh 'aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}'
+                            sh 'aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}'
                            sh "terraform init"
                            sh "terraform apply --auto-approve"
                            EC2_PUBLIC_IP = sh(
@@ -87,14 +88,14 @@ pipeline {
                 script{
                     sshagent(['slave2']) {
                      sh "scp -o StrictHostKeyChecking=no ansible/* ${ACM_IP}:/home/ec2-user"
-                     sh "ssh -o StrictHostKeyChecking=no ${ACM_IP} bash /home/ec2-user/ansible-config.sh ${ACCESS_KEY} ${SECRET_ACCESS_KEY} ${DOCKER_REG_PASSWORD} ${IMAGE_NAME}"
-
-               
-            }
-        }
-
+                   //copy the ansible target key on ACM as private key file
+    withCredentials([sshUserPrivateKey(credentialsId: 'Ansible_target',keyFileVariable: 'keyfile',usernameVariable: 'user')]){ 
+    sh "scp -o StrictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/id_rsa"    
     }
-}
-
+    sh "ssh -o StrictHostKeyChecking=no ${ACM_IP} bash /home/ec2-user/prepare-ACM.sh ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${DOCKER_REG_PASSWORD} ${IMAGE_NAME}"
+      }
+        }
+        }    
+    }
     }
 }
