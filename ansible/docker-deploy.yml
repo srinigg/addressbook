@@ -15,6 +15,6 @@
   - name: Install urllib3 with compatible version
     pip: name=urllib3<2.0 state=present
   - name: docker login
-    docker_login: registry_url=https://index.docker.io/v1/ username=devopstrainer password={{DOCKER_REG_PASSWORD}}
+    community.docker.docker_login: registry_url=https://index.docker.io/v1/ username=devopstrainer password={{DOCKER_REG_PASSWORD}}
   - name: run the docker image
     docker_container: name=addbook image={{DOCKER_IMAGE}} published_ports="8080:8080"
