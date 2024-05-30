@@ -10,12 +10,12 @@ if [ -d "addressbook" ]
 then
    echo "repo is already cloned and exists"
    cd /home/ec2-user/addressbook
-   git pull origin may-ansible
+   git pull origin devops-ansible
 else
    git clone https://github.com/preethid/addressbook.git
    cd addressbook
-   git checkout may-ansible
+   git checkout devops-ansible
 fi
-cd addressbook
+#cd addressbook
 #mvn package
 sudo docker build -t $1 /home/ec2-user/addressbook
